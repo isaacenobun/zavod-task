@@ -10,6 +10,7 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
+        depth = 1
         
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:

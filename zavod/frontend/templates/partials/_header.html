@@ -1,0 +1,83 @@
+{% load custom_filters %}
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'home' %}">Zavod</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'home' %}">News</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'tagged' %}">News by Tag</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="modal" data-bs-target="#statisticsModal">Statistics</a>
+        </li>        
+        </ul>
+        <li style="margin-right: 40px;" class="d-flex nav-item">
+          
+          {% if user %}
+            <a class="nav-link" aria-current="page" href="{% url 'sign-out' %}" >Sign Out</a>
+            {% else %}
+            <a class="nav-link" aria-current="page" data-bs-toggle="modal" data-bs-target="#exampleModal">Sign In</a>
+          {% endif %}
+
+        </li>
+      </div>
+    </div>
+</nav>
+
+<div style="cursor: pointer;" class="modal fade" id="statisticsModal" tabindex="-1" aria-labelledby="statisticsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statisticsModalLabel">News Statistics</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          
+          {% for item in news %}
+          <p>{{item.title}} <small>{{item.views}} Views | Created on: {{item.created_at|cs_date}} | 
+              Tags: {% for tag in item.tag %}{{tag.tag}} {% endfor %}
+          </small></p>
+          {% endfor %}
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form action="{% url 'sign-in' %}" method="POST">
+  {% csrf_token %}
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Sign In</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="mb-3">
+                <label for="recipient-name" class="col-form-label">Email Address</label>
+                <input name="email" type="text" class="form-control" id="recipient-name">
+              </div>
+              <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label">Password</label>
+                  <input name="password" type="password" class="form-control" id="recipient-name">
+                </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+          </div>
+        </div>
+      </div>
+  </div>
+</form>

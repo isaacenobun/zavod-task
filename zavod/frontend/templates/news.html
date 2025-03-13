@@ -1,0 +1,71 @@
+{% extends 'base.html' %} {% load static %} {% load custom_filters %}
+
+
+{% block content %}
+
+<div class="container mt-5 p-4">
+    <nav class="navbar navbar-expand-lg navbar-light mb-4">
+        <a class="navbar-brand" href="{% url 'home' %}">Zavod News</a>
+    </nav>
+    <div class="article-header text-center">
+        <h1 class="mb-3">{{news.title | title}}</h1>
+        <p class="article-meta">Published on: {{news.created_at|cs_date}} | Views: {{news.views}}</p>
+        <p>
+            <span>
+            {% for tag in news.tag %}
+            
+            {% if tag.tag == "Technology" %}
+                <span class="badge bg-primary">{{tag.tag}}</span>
+            {% elif tag.tag == "Business" %}
+                <span class="badge bg-secondary">{{tag.tag}}</span>
+            {% elif tag.tag == "Sports" %}
+                <span class="badge bg-dark">{{tag.tag}}</span>
+            {% elif tag.tag == "Politics" %}
+                <span class="badge bg-warning">{{tag.tag}}</span>
+            {% elif tag.tag == "Education" %}
+                <span class="badge bg-danger">{{tag.tag}}</span>
+            {% elif tag.tag == "World" %}
+                <span class="badge bg-success">{{tag.tag}}</span>
+            {% elif tag.tag == "Entertainment" %}
+                <span class="badge bg-info">{{tag.tag}}</span>
+            {% endif %}
+                
+            {% endfor %}
+            </span>
+        </p>
+        <img src="{{news.picture}}" alt="News Image" class="mb-4">
+    </div>
+    <div class="article-content">
+        <p>{{news.text}}</p>
+    </div>
+    <span class="d-flex justify-content-between text-muted">
+        <a href="{% url 'home' %}" class="btn btn-outline-dark mt-4">Back to News</a>
+        
+        {% if user %}
+            <a href="{% url 'home' %}" class="btn btn-outline-danger mt-4" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</a>
+        {% endif %}
+            
+    </span>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this News Item?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <a href="{% url 'home' %}"><button type="button" class="btn btn-danger">Delete</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+{% endblock content %}
+    

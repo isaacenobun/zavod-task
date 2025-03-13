@@ -36,24 +36,49 @@
                     </span>
                     
                     {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
+                        <span class="heart-toggle" onclick="toggleHeart(this)" data-news-id="{{ item.id }}" data-user-id="{{ user_id }}">
+                            {% if item.id in user_likes %}
+                                <i class="fa-solid fa-heart text-danger" id="heart-filled-{{ item.id }}"></i>
+                                <i class="fa-regular fa-heart text-dark d-none" id="heart-outline-{{ item.id }}"></i>
+                            {% else %}
+                                <i class="fa-solid fa-heart text-danger d-none" id="heart-filled-{{ item.id }}"></i>
+                                <i class="fa-regular fa-heart text-dark" id="heart-outline-{{ item.id }}"></i>
+                            {% endif %}
                         </span>
+                        <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
                     {% endif %}
-                    
+
                     <script>
                         function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
+                            let newsId = element.getAttribute("data-news-id");
+                            let userId = element.getAttribute("data-user-id");
+                            let filledHeart = document.getElementById(`heart-filled-${newsId}`);
+                            let outlineHeart = document.getElementById(`heart-outline-${newsId}`);
+                            let isLiked = filledHeart.classList.contains("d-none");
+
+                            let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+                            let formData = new FormData();
+                            formData.append("news_id", newsId);
+                            formData.append("user_id", userId);
+
+                            fetch(url, {
+                                method: "POST",
+                                body: formData,
+                                headers: { "X-Requested-With": "XMLHttpRequest" }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    filledHeart.classList.toggle("d-none");
+                                    outlineHeart.classList.toggle("d-none");
+                                } else {
+                                    console.error("Error:", data.message);
+                                }
+                            })
+                            .catch(error => console.error("Request failed:", error));
                         }
                     </script>
-
-                    </span>
-                    <span>{{item.likes | length}} Likes</span>
+                    
                     <div class="d-flex justify-content-between text-muted">
                         <p class="mb-0">Views: {{item.views}}</p>
                         <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
@@ -68,7 +93,23 @@
     </div>
 </div>
 
+<script>
+    const eventSource = new EventSource("{% url 'stream' %}");
+    
+    eventSource.onmessage = function(event) {
+        const updates = JSON.parse(event.data);
+        
+        updates.forEach(update => {
+            const newsId = update.news_id;
+            const likesCount = update.likes;
+    
+            const likesElement = document.getElementById(`likes-count-${newsId}`);
+            if (likesElement) {
+                likesElement.innerText = likesCount;
+            }
+        });
+    };
+</script>
 
-  
 {% endblock content %}
     

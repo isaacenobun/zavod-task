@@ -1,326 +1,704 @@
-{% extends 'base.html' %} {% load static %} {% load custom_filters %}
-
+{% extends 'base.html' %} {% load static %} {% load custom_filters %} 
 
 {% block content %}
 
 <div class="container mt-4">
 
-    <h2 class="mb-4 text-center">Technology</h2>
-    <div class="row">
-        {% for item in news %}
-        
-        {% if item.tag|has_tag:"Technology" %}
-            
-        <div class="col-md-4 mb-4" >
-            <div class="card" id="{{item.id}}">
-                <img src="{{item.picture}}" class="card-img-top" alt="News Image">
-                <div class="card-body">
-                    <h5 class="card-title">{{item.title | title}}</h5>
-                    <p class="card-text">{{item.text | truncatechars:150 }}</p>
+  <h2 class="mb-4 text-center">Technology</h2>
+  <div class="row">
+    {% for item in news %} 
+    
+    {% if item.tag|has_tag:"Technology" %}
 
-                    {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
-                        </span>
-                    {% endif %}
-                    
-                    <script>
-                        function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
-                        }
-                    </script>
-                    
-                    <span>{{item.likes | length}} Likes</span>
-                    <div class="d-flex justify-content-between text-muted">
-                        <p class="mb-0">Views: {{item.views}}</p>
-                        <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
-                            Read
-                          </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
+    <div class="col-md-4 mb-4">
+      <div class="card" id="{{item.id}}">
+        <img src="{{item.picture}}" class="card-img-top" alt="News Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{item.title | title}}</h5>
+          <p class="card-text">{{item.text | truncatechars:150 }}</p>
+
+          {% if user %}
+          <span
+            class="heart-toggle"
+            onclick="toggleHeart(this)"
+            data-news-id="{{ item.id }}"
+            data-user-id="{{ user_id }}"
+          >
+            {% if item.id in user_likes %}
+            <i
+              class="fa-solid fa-heart text-danger"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark d-none"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% else %}
+            <i
+              class="fa-solid fa-heart text-danger d-none"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% endif %}
+          </span>
+          <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
+          {% endif %}
+
+          <script>
+            function toggleHeart(element) {
+              let newsId = element.getAttribute("data-news-id");
+              let userId = element.getAttribute("data-user-id");
+              let filledHeart = document.getElementById(
+                `heart-filled-${newsId}`
+              );
+              let outlineHeart = document.getElementById(
+                `heart-outline-${newsId}`
+              );
+              let isLiked = filledHeart.classList.contains("d-none");
+
+              let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+              let formData = new FormData();
+              formData.append("news_id", newsId);
+              formData.append("user_id", userId);
+
+              fetch(url, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    filledHeart.classList.toggle("d-none");
+                    outlineHeart.classList.toggle("d-none");
+                  } else {
+                    console.error("Error:", data.message);
+                  }
+                })
+                .catch((error) => console.error("Request failed:", error));
+            }
+          </script>
+
+          <div class="d-flex justify-content-between text-muted">
+            <p class="mb-0">Views: {{item.views}}</p>
+            <span
+              ><a
+                class="icon-link icon-link-hover"
+                href="{% url 'news' item.id %}"
+              >
+                Read
+              </a>
+            </span>
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
-    <h2 class="mb-4 text-center">Business</h2>
-    <div class="row">
-        {% for item in news %}
-        
-        {% if item.tag|has_tag:"Business" %}
-            
-        <div class="col-md-4 mb-4" >
-            <div class="card" id="{{item.id}}">
-                <img src="{{item.picture}}" class="card-img-top" alt="News Image">
-                <div class="card-body">
-                    <h5 class="card-title">{{item.title | title}}</h5>
-                    <p class="card-text">{{item.text | truncatechars:150 }}</p>
+  <h2 class="mb-4 text-center">Business</h2>
+  <div class="row">
+    {% for item in news %} 
+    
+    {% if item.tag|has_tag:"Business" %}
 
-                    {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
-                        </span>
-                    {% endif %}
-                    
-                    <script>
-                        function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
-                        }
-                    </script>
-                    
-                    <span>{{item.likes | length}} Likes</span>
-                    <div class="d-flex justify-content-between text-muted">
-                        <p class="mb-0">Views: {{item.views}}</p>
-                        <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
-                            Read
-                          </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
+    <div class="col-md-4 mb-4">
+      <div class="card" id="{{item.id}}">
+        <img src="{{item.picture}}" class="card-img-top" alt="News Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{item.title | title}}</h5>
+          <p class="card-text">{{item.text | truncatechars:150 }}</p>
+
+          {% if user %}
+          <span
+            class="heart-toggle"
+            onclick="toggleHeart(this)"
+            data-news-id="{{ item.id }}"
+            data-user-id="{{ user_id }}"
+          >
+            {% if item.id in user_likes %}
+            <i
+              class="fa-solid fa-heart text-danger"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark d-none"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% else %}
+            <i
+              class="fa-solid fa-heart text-danger d-none"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% endif %}
+          </span>
+          <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
+          {% endif %}
+
+          <script>
+            function toggleHeart(element) {
+              let newsId = element.getAttribute("data-news-id");
+              let userId = element.getAttribute("data-user-id");
+              let filledHeart = document.getElementById(
+                `heart-filled-${newsId}`
+              );
+              let outlineHeart = document.getElementById(
+                `heart-outline-${newsId}`
+              );
+              let isLiked = filledHeart.classList.contains("d-none");
+
+              let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+              let formData = new FormData();
+              formData.append("news_id", newsId);
+              formData.append("user_id", userId);
+
+              fetch(url, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    filledHeart.classList.toggle("d-none");
+                    outlineHeart.classList.toggle("d-none");
+                  } else {
+                    console.error("Error:", data.message);
+                  }
+                })
+                .catch((error) => console.error("Request failed:", error));
+            }
+          </script>
+
+          <div class="d-flex justify-content-between text-muted">
+            <p class="mb-0">Views: {{item.views}}</p>
+            <span
+              ><a
+                class="icon-link icon-link-hover"
+                href="{% url 'news' item.id %}"
+              >
+                Read
+              </a>
+            </span>
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
-    <h2 class="mb-4 text-center">Sports</h2>
-    <div class="row">
-        {% for item in news %}
-        
-        {% if item.tag|has_tag:"Sports" %}
-            
-        <div class="col-md-4 mb-4" >
-            <div class="card" id="{{item.id}}">
-                <img src="{{item.picture}}" class="card-img-top" alt="News Image">
-                <div class="card-body">
-                    <h5 class="card-title">{{item.title | title}}</h5>
-                    <p class="card-text">{{item.text | truncatechars:150 }}</p>
 
-                    {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
-                        </span>
-                    {% endif %}
-                    
-                    <script>
-                        function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
-                        }
-                    </script>
-                    
-                    <span>{{item.likes | length}} Likes</span>
-                        <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
-                            Read
-                          </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
+  <h2 class="mb-4 text-center">Sports</h2>
+  <div class="row">
+    {% for item in news %} 
+    
+    {% if item.tag|has_tag:"Sports" %}
+
+    <div class="col-md-4 mb-4">
+      <div class="card" id="{{item.id}}">
+        <img src="{{item.picture}}" class="card-img-top" alt="News Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{item.title | title}}</h5>
+          <p class="card-text">{{item.text | truncatechars:150 }}</p>
+
+          {% if user %}
+          <span
+            class="heart-toggle"
+            onclick="toggleHeart(this)"
+            data-news-id="{{ item.id }}"
+            data-user-id="{{ user_id }}"
+          >
+            {% if item.id in user_likes %}
+            <i
+              class="fa-solid fa-heart text-danger"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark d-none"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% else %}
+            <i
+              class="fa-solid fa-heart text-danger d-none"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% endif %}
+          </span>
+          <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
+          {% endif %}
+
+          <script>
+            function toggleHeart(element) {
+              let newsId = element.getAttribute("data-news-id");
+              let userId = element.getAttribute("data-user-id");
+              let filledHeart = document.getElementById(
+                `heart-filled-${newsId}`
+              );
+              let outlineHeart = document.getElementById(
+                `heart-outline-${newsId}`
+              );
+              let isLiked = filledHeart.classList.contains("d-none");
+
+              let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+              let formData = new FormData();
+              formData.append("news_id", newsId);
+              formData.append("user_id", userId);
+
+              fetch(url, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    filledHeart.classList.toggle("d-none");
+                    outlineHeart.classList.toggle("d-none");
+                  } else {
+                    console.error("Error:", data.message);
+                  }
+                })
+                .catch((error) => console.error("Request failed:", error));
+            }
+          </script>
+
+          <div class="d-flex justify-content-between text-muted">
+            <p class="mb-0">Views: {{item.views}}</p>
+            <span
+              ><a
+                class="icon-link icon-link-hover"
+                href="{% url 'news' item.id %}"
+              >
+                Read
+              </a>
+            </span>
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
-    <h2 class="mb-4 text-center">World</h2>
-    <div class="row">
-        {% for item in news %}
-        
-        {% if item.tag|has_tag:"World" %}
-            
-        <div class="col-md-4 mb-4" >
-            <div class="card" id="{{item.id}}">
-                <img src="{{item.picture}}" class="card-img-top" alt="News Image">
-                <div class="card-body">
-                    <h5 class="card-title">{{item.title | title}}</h5>
-                    <p class="card-text">{{item.text | truncatechars:150 }}</p>
 
-                    {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
-                        </span>
-                    {% endif %}
-                    
-                    <script>
-                        function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
-                        }
-                    </script>
-                    
-                    <span>{{item.likes | length}} Likes</span>
-                    <div class="d-flex justify-content-between text-muted">
-                        <p class="mb-0">Views: {{item.views}}</p>
-                        <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
-                            Read
-                          </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
+  <h2 class="mb-4 text-center">Politics</h2>
+  <div class="row">
+    {% for item in news %} 
+    
+    {% if item.tag|has_tag:"Politics" %}
+
+    <div class="col-md-4 mb-4">
+      <div class="card" id="{{item.id}}">
+        <img src="{{item.picture}}" class="card-img-top" alt="News Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{item.title | title}}</h5>
+          <p class="card-text">{{item.text | truncatechars:150 }}</p>
+
+          {% if user %}
+          <span
+            class="heart-toggle"
+            onclick="toggleHeart(this)"
+            data-news-id="{{ item.id }}"
+            data-user-id="{{ user_id }}"
+          >
+            {% if item.id in user_likes %}
+            <i
+              class="fa-solid fa-heart text-danger"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark d-none"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% else %}
+            <i
+              class="fa-solid fa-heart text-danger d-none"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% endif %}
+          </span>
+          <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
+          {% endif %}
+
+          <script>
+            function toggleHeart(element) {
+              let newsId = element.getAttribute("data-news-id");
+              let userId = element.getAttribute("data-user-id");
+              let filledHeart = document.getElementById(
+                `heart-filled-${newsId}`
+              );
+              let outlineHeart = document.getElementById(
+                `heart-outline-${newsId}`
+              );
+              let isLiked = filledHeart.classList.contains("d-none");
+
+              let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+              let formData = new FormData();
+              formData.append("news_id", newsId);
+              formData.append("user_id", userId);
+
+              fetch(url, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    filledHeart.classList.toggle("d-none");
+                    outlineHeart.classList.toggle("d-none");
+                  } else {
+                    console.error("Error:", data.message);
+                  }
+                })
+                .catch((error) => console.error("Request failed:", error));
+            }
+          </script>
+
+          <div class="d-flex justify-content-between text-muted">
+            <p class="mb-0">Views: {{item.views}}</p>
+            <span
+              ><a
+                class="icon-link icon-link-hover"
+                href="{% url 'news' item.id %}"
+              >
+                Read
+              </a>
+            </span>
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
-    <h2 class="mb-4 text-center">Entertainment</h2>
-    <div class="row">
-        {% for item in news %}
-        
-        {% if item.tag|has_tag:"Entertainment" %}
-            
-        <div class="col-md-4 mb-4" >
-            <div class="card" id="{{item.id}}">
-                <img src="{{item.picture}}" class="card-img-top" alt="News Image">
-                <div class="card-body">
-                    <h5 class="card-title">{{item.title | title}}</h5>
-                    <p class="card-text">{{item.text | truncatechars:150 }}</p>
 
-                    {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
-                        </span>
-                    {% endif %}
-                    
-                    <script>
-                        function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
-                        }
-                    </script>
-                    
-                    <span>{{item.likes | length}} Likes</span>
-                    <div class="d-flex justify-content-between text-muted">
-                        <p class="mb-0">Views: {{item.views}}</p>
-                        <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
-                            Read
-                          </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
+  <h2 class="mb-4 text-center">Education</h2>
+  <div class="row">
+    {% for item in news %} 
+    
+    {% if item.tag|has_tag:"Education" %}
+
+    <div class="col-md-4 mb-4">
+      <div class="card" id="{{item.id}}">
+        <img src="{{item.picture}}" class="card-img-top" alt="News Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{item.title | title}}</h5>
+          <p class="card-text">{{item.text | truncatechars:150 }}</p>
+
+          {% if user %}
+          <span
+            class="heart-toggle"
+            onclick="toggleHeart(this)"
+            data-news-id="{{ item.id }}"
+            data-user-id="{{ user_id }}"
+          >
+            {% if item.id in user_likes %}
+            <i
+              class="fa-solid fa-heart text-danger"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark d-none"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% else %}
+            <i
+              class="fa-solid fa-heart text-danger d-none"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% endif %}
+          </span>
+          <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
+          {% endif %}
+
+          <script>
+            function toggleHeart(element) {
+              let newsId = element.getAttribute("data-news-id");
+              let userId = element.getAttribute("data-user-id");
+              let filledHeart = document.getElementById(
+                `heart-filled-${newsId}`
+              );
+              let outlineHeart = document.getElementById(
+                `heart-outline-${newsId}`
+              );
+              let isLiked = filledHeart.classList.contains("d-none");
+
+              let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+              let formData = new FormData();
+              formData.append("news_id", newsId);
+              formData.append("user_id", userId);
+
+              fetch(url, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    filledHeart.classList.toggle("d-none");
+                    outlineHeart.classList.toggle("d-none");
+                  } else {
+                    console.error("Error:", data.message);
+                  }
+                })
+                .catch((error) => console.error("Request failed:", error));
+            }
+          </script>
+
+          <div class="d-flex justify-content-between text-muted">
+            <p class="mb-0">Views: {{item.views}}</p>
+            <span
+              ><a
+                class="icon-link icon-link-hover"
+                href="{% url 'news' item.id %}"
+              >
+                Read
+              </a>
+            </span>
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
-    <h2 class="mb-4 text-center">Politics</h2>
-    <div class="row">
-        {% for item in news %}
-        
-        {% if item.tag|has_tag:"Politics" %}
-            
-        <div class="col-md-4 mb-4" >
-            <div class="card" id="{{item.id}}">
-                <img src="{{item.picture}}" class="card-img-top" alt="News Image">
-                <div class="card-body">
-                    <h5 class="card-title">{{item.title | title}}</h5>
-                    <p class="card-text">{{item.text | truncatechars:150 }}</p>
 
-                    {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
-                        </span>
-                    {% endif %}
-                    
-                    <script>
-                        function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
-                        }
-                    </script>
-                    
-                    <span>{{item.likes | length}} Likes</span>
-                    <div class="d-flex justify-content-between text-muted">
-                        <p class="mb-0">Views: {{item.views}}</p>
-                        <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
-                            Read
-                          </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
+  <h2 class="mb-4 text-center">World</h2>
+  <div class="row">
+    {% for item in news %} 
+    
+    {% if item.tag|has_tag:"World" %}
+
+    <div class="col-md-4 mb-4">
+      <div class="card" id="{{item.id}}">
+        <img src="{{item.picture}}" class="card-img-top" alt="News Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{item.title | title}}</h5>
+          <p class="card-text">{{item.text | truncatechars:150 }}</p>
+
+          {% if user %}
+          <span
+            class="heart-toggle"
+            onclick="toggleHeart(this)"
+            data-news-id="{{ item.id }}"
+            data-user-id="{{ user_id }}"
+          >
+            {% if item.id in user_likes %}
+            <i
+              class="fa-solid fa-heart text-danger"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark d-none"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% else %}
+            <i
+              class="fa-solid fa-heart text-danger d-none"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% endif %}
+          </span>
+          <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
+          {% endif %}
+
+          <script>
+            function toggleHeart(element) {
+              let newsId = element.getAttribute("data-news-id");
+              let userId = element.getAttribute("data-user-id");
+              let filledHeart = document.getElementById(
+                `heart-filled-${newsId}`
+              );
+              let outlineHeart = document.getElementById(
+                `heart-outline-${newsId}`
+              );
+              let isLiked = filledHeart.classList.contains("d-none");
+
+              let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+              let formData = new FormData();
+              formData.append("news_id", newsId);
+              formData.append("user_id", userId);
+
+              fetch(url, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    filledHeart.classList.toggle("d-none");
+                    outlineHeart.classList.toggle("d-none");
+                  } else {
+                    console.error("Error:", data.message);
+                  }
+                })
+                .catch((error) => console.error("Request failed:", error));
+            }
+          </script>
+
+          <div class="d-flex justify-content-between text-muted">
+            <p class="mb-0">Views: {{item.views}}</p>
+            <span
+              ><a
+                class="icon-link icon-link-hover"
+                href="{% url 'news' item.id %}"
+              >
+                Read
+              </a>
+            </span>
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
-    <h2 class="mb-4 text-center">Food</h2>
-    <div class="row">
-        {% for item in news %}
-        
-        {% if item.tag|has_tag:"Food" %}
-            
-        <div class="col-md-4 mb-4" >
-            <div class="card" id="{{item.id}}">
-                <img src="{{item.picture}}" class="card-img-top" alt="News Image">
-                <div class="card-body">
-                    <h5 class="card-title">{{item.title | title}}</h5>
-                    <p class="card-text">{{item.text | truncatechars:150 }}</p>
 
-                    {% if user %}
-                        <span class="heart-toggle" onclick="toggleHeart(this)">
-                            <i class="fa-solid fa-heart text-danger d-none"></i>
-                            <i class="fa-regular fa-heart text-dark"></i>
-                        </span>
-                    {% endif %}
-                    
-                    <script>
-                        function toggleHeart(element) {
-                            let solidHeart = element.querySelector('.fa-solid');
-                            let regularHeart = element.querySelector('.fa-regular');
-                            
-                            solidHeart.classList.toggle('d-none');
-                            regularHeart.classList.toggle('d-none');
-                        }
-                    </script>
-                    
-                    <span>{{item.likes | length}} Likes</span>
-                    <div class="d-flex justify-content-between text-muted">
-                        <p class="mb-0">Views: {{item.views}}</p>
-                        <span><a class="icon-link icon-link-hover" href="{% url 'news' item.id %}">
-                            Read
-                          </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
+  <h2 class="mb-4 text-center">Entertainment</h2>
+  <div class="row">
+    {% for item in news %} 
+    
+    {% if item.tag|has_tag:"Entertainment" %}
+
+    <div class="col-md-4 mb-4">
+      <div class="card" id="{{item.id}}">
+        <img src="{{item.picture}}" class="card-img-top" alt="News Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{item.title | title}}</h5>
+          <p class="card-text">{{item.text | truncatechars:150 }}</p>
+
+          {% if user %}
+          <span
+            class="heart-toggle"
+            onclick="toggleHeart(this)"
+            data-news-id="{{ item.id }}"
+            data-user-id="{{ user_id }}"
+          >
+            {% if item.id in user_likes %}
+            <i
+              class="fa-solid fa-heart text-danger"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark d-none"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% else %}
+            <i
+              class="fa-solid fa-heart text-danger d-none"
+              id="heart-filled-{{ item.id }}"
+            ></i>
+            <i
+              class="fa-regular fa-heart text-dark"
+              id="heart-outline-{{ item.id }}"
+            ></i>
+            {% endif %}
+          </span>
+          <span><span class="likes-count" id="likes-count-{{ item.id }}">{{ item.likes }}</span><span> Likes</span></span>
+          {% endif %}
+
+          <script>
+            function toggleHeart(element) {
+              let newsId = element.getAttribute("data-news-id");
+              let userId = element.getAttribute("data-user-id");
+              let filledHeart = document.getElementById(
+                `heart-filled-${newsId}`
+              );
+              let outlineHeart = document.getElementById(
+                `heart-outline-${newsId}`
+              );
+              let isLiked = filledHeart.classList.contains("d-none");
+
+              let url = isLiked ? "{% url 'like' %}" : "{% url 'unlike' %}";
+              let formData = new FormData();
+              formData.append("news_id", newsId);
+              formData.append("user_id", userId);
+
+              fetch(url, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    filledHeart.classList.toggle("d-none");
+                    outlineHeart.classList.toggle("d-none");
+                  } else {
+                    console.error("Error:", data.message);
+                  }
+                })
+                .catch((error) => console.error("Request failed:", error));
+            }
+          </script>
+
+          <div class="d-flex justify-content-between text-muted">
+            <p class="mb-0">Views: {{item.views}}</p>
+            <span
+              ><a
+                class="icon-link icon-link-hover"
+                href="{% url 'news' item.id %}"
+              >
+                Read
+              </a>
+            </span>
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
 </div>
-    
 
+<script>
+  const eventSource = new EventSource("{% url 'stream' %}");
+
+  eventSource.onmessage = function (event) {
+    const updates = JSON.parse(event.data);
+
+    updates.forEach((update) => {
+      const newsId = update.news_id;
+      const likesCount = update.likes;
+
+      const likesElement = document.getElementById(`likes-count-${newsId}`);
+      if (likesElement) {
+        likesElement.innerText = likesCount;
+      }
+    });
+  };
+</script>
 
 {% endblock content %}
-    
